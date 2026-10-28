@@ -2,189 +2,576 @@
 
 import { useState, useRef, useEffect } from "react";
 import { FadeIn } from "@/components/ui/FadeIn";
-import { Terminal as TerminalIcon, Play, RefreshCw, Check, Copy } from "lucide-react";
+import { Play, RefreshCw, Check, Copy, Loader2 } from "lucide-react";
 
-interface CommandHistory {
+interface CommandEntry {
+  id: string;
   command: string;
-  output: string | JSX.Element;
+  lines: React.ReactNode[];
+  isStreaming?: boolean;
+}
+
+interface TerminalLineItem {
+  node: React.ReactNode;
+  delay?: number; // Delay in milliseconds before this line prints
 }
 
 export function Terminal() {
   const [input, setInput] = useState("");
   const [copied, setCopied] = useState(false);
-  const terminalBodyRef = useRef<HTMLDivElement>(null);
-  const isFirstRender = useRef(true);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [commandHistoryList, setCommandHistoryList] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState<number>(-1);
 
-  const initialHistory: CommandHistory[] = [
+  const terminalBodyRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const executionIdRef = useRef<number>(0);
+  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+
+  const initialHistory: CommandEntry[] = [
     {
+      id: "init-1",
       command: "whoami",
-      output: (
-        <div className="space-y-1 text-fg/80">
-          <p className="text-accent font-semibold">Vivek Singh — Backend & Distributed Systems Engineer</p>
-          <p>B.E. Electronics & Telecommunication (2023–2027) @ Army Institute of Technology, Pune (CGPA: 8.17)</p>
-          <p>650+ DSA Solved · LeetCode 1550+ · CodeChef Starters 225 Rank #320 globally</p>
-        </div>
-      ),
+      lines: [
+        <div key="w-1" className="text-accent font-semibold">
+          Vivek Singh — Backend & Distributed Systems Engineer
+        </div>,
+        <div key="w-2" className="text-fg/80">
+          B.E. Electronics & Telecommunication (2023–2027) @ Army Institute of Technology, Pune (CGPA: 8.17)
+        </div>,
+        <div key="w-3" className="text-fg/80">
+          650+ DSA Solved · LeetCode 1550+ · CodeChef Starters 225 Rank #320 globally
+        </div>,
+      ],
+      isStreaming: false,
     },
     {
+      id: "init-2",
       command: "systemctl status microservices",
-      output: (
-        <div className="space-y-1 text-fg/75 font-mono text-xs">
-          <p className="text-green-400">● order-service.service - active (running) on :8081 [O(log n) Match Engine]</p>
-          <p className="text-green-400">● wallet-service.service - active (running) on :8082 [Pessimistic Balance Locks]</p>
-          <p className="text-green-400">● trade-service.service - active (running) on :8083 [Audit Log & Execution]</p>
-          <p className="text-green-400">● kafka-broker.service - active (streaming) topics: [trade.settlement, driver.geo]</p>
-          <p className="text-green-400">● redis-cluster.service - active (in-memory) lookup-latency: &lt; 50ms</p>
-        </div>
-      ),
+      lines: [
+        <div key="s-1" className="text-green-400">
+          ● order-service.service - active (running) on :8081 [O(log n) Match Engine]
+        </div>,
+        <div key="s-2" className="text-green-400">
+          ● wallet-service.service - active (running) on :8082 [Pessimistic Balance Locks]
+        </div>,
+        <div key="s-3" className="text-green-400">
+          ● trade-service.service - active (running) on :8083 [Audit Log & Execution]
+        </div>,
+        <div key="s-4" className="text-green-400">
+          ● kafka-broker.service - active (streaming) topics: [trade.settlement, driver.geo]
+        </div>,
+        <div key="s-5" className="text-green-400">
+          ● redis-cluster.service - active (in-memory) lookup-latency: &lt; 50ms
+        </div>,
+      ],
+      isStreaming: false,
     },
   ];
 
-  const [history, setHistory] = useState<CommandHistory[]>(initialHistory);
+  const [history, setHistory] = useState<CommandEntry[]>(initialHistory);
 
   const quickCommands = ["help", "projects", "skills", "benchmark", "contact", "clear"];
 
-  const handleCommand = (cmdStr: string) => {
-    const cmd = cmdStr.trim().toLowerCase();
-    if (!cmd) return;
-
-    let output: string | JSX.Element = "";
-
-    switch (cmd) {
-      case "help":
-        output = (
-          <div className="space-y-1 text-xs font-mono text-fg/80">
-            <p className="text-accent">Available System Commands:</p>
-            <p><span className="text-accent">whoami</span> — Identity and background</p>
-            <p><span className="text-accent">projects</span> — Key distributed systems & architecture</p>
-            <p><span className="text-accent">skills</span> — Technical languages, frameworks & databases</p>
-            <p><span className="text-accent">benchmark</span> — Execute live simulated system load test</p>
-            <p><span className="text-accent">education</span> — Academic degrees & scores</p>
-            <p><span className="text-accent">contact</span> — Get direct contact links</p>
-            <p><span className="text-accent">clear</span> — Reset terminal window</p>
-          </div>
-        );
-        break;
-
-      case "whoami":
-        output = (
-          <div className="space-y-1 text-fg/80">
-            <p className="text-accent font-semibold">Vivek Singh — Backend & Distributed Systems Engineer</p>
-            <p>B.E. Electronics & Telecommunication (2023–2027) @ Army Institute of Technology, Pune (CGPA: 8.17)</p>
-            <p>650+ DSA Solved · LeetCode 1550+ · CodeChef Starters 225 Rank #320 globally</p>
-          </div>
-        );
-        break;
-
-      case "projects":
-        output = (
-          <div className="space-y-2 text-xs font-mono text-fg/80">
-            <div>
-              <p className="text-accent font-semibold">[01] TradeX — Distributed Crypto Trading Engine</p>
-              <p className="text-muted">Java, Spring Boot, Kafka, MySQL, Eureka, API Gateway</p>
-              <p className="text-fg/70">3 Microservices · O(log n) matching · 2-balance wallet locking</p>
-            </div>
-            <div>
-              <p className="text-accent font-semibold">[02] Ride-Sharing System — Uber-like Backend</p>
-              <p className="text-muted">Java, Spring Boot, Kafka, Redis GEO, MySQL, WebSockets</p>
-              <p className="text-fg/70">Sub-50ms driver lookups · Transactional driver state · Real-time socket stream</p>
-            </div>
-            <div>
-              <p className="text-accent font-semibold">[03] AI Video Assistant (RAG Pipeline)</p>
-              <p className="text-muted">Python, Streamlit, LangChain, Whisper, ChromaDB, Mistral AI</p>
-              <p className="text-fg/70">6-Stage RAG pipeline · Whisper English/Hindi ASR · 5 structured outputs</p>
-            </div>
-          </div>
-        );
-        break;
-
-      case "skills":
-        output = (
-          <div className="space-y-1 text-xs font-mono text-fg/80">
-            <p><span className="text-accent">Languages:</span> Java, Python, SQL, JavaScript, HTML, CSS</p>
-            <p><span className="text-accent">Frameworks:</span> Spring Boot, Spring Security, Spring Cloud, Hibernate/JPA</p>
-            <p><span className="text-accent">Architecture:</span> Microservices, Eureka, API Gateway, Event-Driven, Concurrency</p>
-            <p><span className="text-accent">Data & Streams:</span> Apache Kafka, Redis, MySQL, MongoDB, ChromaDB</p>
-            <p><span className="text-accent">AI & RAG:</span> LangChain, OpenAI Whisper, Sentence Transformers</p>
-            <p><span className="text-accent">Tools:</span> Docker, Docker Compose, Git, Postman</p>
-          </div>
-        );
-        break;
-
-      case "benchmark":
-        output = (
-          <div className="space-y-1 text-xs font-mono">
-            <p className="text-yellow-400">--- Running System Concurrency Benchmark ---</p>
-            <p className="text-fg/80">[1] Dispatching 10,000 concurrent trade orders across 2 Priority Queues...</p>
-            <p className="text-green-400">✔ Matching Complexity: O(log n) verified. 0 order collisions.</p>
-            <p className="text-fg/80">[2] Pinging Redis GEO spatial index radius (5km)...</p>
-            <p className="text-green-400">✔ Nearest driver query latency: 38.4ms (Target: &lt;50ms) PASS.</p>
-            <p className="text-fg/80">[3] Kafka event stream throughput...</p>
-            <p className="text-green-400">✔ Asynchronous settlement events decoupled. Zero double-spend exceptions.</p>
-            <p className="text-accent font-semibold">ALL BENCHMARKS SATISFIED.</p>
-          </div>
-        );
-        break;
-
-      case "education":
-        output = (
-          <div className="space-y-2 text-xs font-mono text-fg/80">
-            <div>
-              <p className="text-accent">Army Institute of Technology, Pune (2023 - 2027)</p>
-              <p className="text-muted">B.E. Electronics & Telecommunication · CGPA: 8.17</p>
-            </div>
-            <div>
-              <p className="text-accent">Army Public School, Gorakhpur (2021 - 2022)</p>
-              <p className="text-muted">Higher Secondary (CBSE) · 88.2%</p>
-            </div>
-          </div>
-        );
-        break;
-
-      case "contact":
-        output = (
-          <div className="space-y-1 text-xs font-mono text-fg/80">
-            <p className="text-accent">Email: <a href="mailto:viveksinghait2027@gmail.com" className="underline hover:text-white">viveksinghait2027@gmail.com</a></p>
-            <p>Phone: +91-6394127185</p>
-            <p>GitHub: <a href="https://github.com/FABvivek" target="_blank" rel="noreferrer" className="underline text-accent">github.com/FABvivek</a></p>
-            <p>LinkedIn: <a href="https://linkedin.com/in/vivek-singh-072242309" target="_blank" rel="noreferrer" className="underline text-accent">linkedin.com/in/vivek-singh-072242309</a></p>
-            <p>LeetCode: <a href="https://leetcode.com/u/fabvivek" target="_blank" rel="noreferrer" className="underline text-accent">leetcode.com/u/fabvivek</a></p>
-          </div>
-        );
-        break;
-
-      case "clear":
-        setHistory([]);
-        setInput("");
-        return;
-
-      default:
-        output = (
-          <p className="text-xs font-mono text-red-400">
-            command not found: {cmd}. Type &apos;help&apos; for available commands.
-          </p>
-        );
-    }
-
-    setHistory((prev) => [...prev, { command: cmdStr, output }]);
-    setInput("");
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleCommand(input);
-    }
+  const clearAllTimeouts = () => {
+    timeoutsRef.current.forEach((t) => clearTimeout(t));
+    timeoutsRef.current = [];
   };
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
+    return () => {
+      clearAllTimeouts();
+    };
+  }, []);
+
+  // Auto-scroll whenever history updates
+  useEffect(() => {
     if (terminalBodyRef.current) {
       terminalBodyRef.current.scrollTop = terminalBodyRef.current.scrollHeight;
     }
   }, [history]);
+
+  const getCommandLines = (rawCmd: string): TerminalLineItem[] => {
+    const cmd = rawCmd.trim().toLowerCase();
+
+    switch (cmd) {
+      case "help":
+        return [
+          {
+            node: <p className="text-accent font-semibold">Available System Commands:</p>,
+            delay: 40,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">whoami</span> — Identity and background
+              </p>
+            ),
+            delay: 50,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">projects</span> — Key distributed systems & architecture
+              </p>
+            ),
+            delay: 50,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">skills</span> — Technical languages, frameworks & databases
+              </p>
+            ),
+            delay: 50,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">benchmark</span> — Execute live simulated system load test
+              </p>
+            ),
+            delay: 50,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">systemctl</span> — Query status of background microservices
+              </p>
+            ),
+            delay: 50,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">education</span> — Academic degrees & scores
+              </p>
+            ),
+            delay: 50,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">contact</span> — Get direct contact links
+              </p>
+            ),
+            delay: 50,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">clear</span> — Reset terminal window
+              </p>
+            ),
+            delay: 50,
+          },
+        ];
+
+      case "whoami":
+        return [
+          {
+            node: <p className="text-accent font-semibold">Vivek Singh — Backend & Distributed Systems Engineer</p>,
+            delay: 60,
+          },
+          {
+            node: (
+              <p className="text-fg/80">
+                B.E. Electronics & Telecommunication (2023–2027) @ Army Institute of Technology, Pune (CGPA: 8.17)
+              </p>
+            ),
+            delay: 80,
+          },
+          {
+            node: (
+              <p className="text-fg/80">
+                650+ DSA Solved · LeetCode 1550+ · CodeChef Starters 225 Rank #320 globally
+              </p>
+            ),
+            delay: 80,
+          },
+        ];
+
+      case "systemctl":
+      case "systemctl status":
+      case "systemctl status microservices":
+      case "status":
+        return [
+          {
+            node: <p className="text-green-400">● order-service.service - active (running) on :8081 [O(log n) Match Engine]</p>,
+            delay: 90,
+          },
+          {
+            node: <p className="text-green-400">● wallet-service.service - active (running) on :8082 [Pessimistic Balance Locks]</p>,
+            delay: 90,
+          },
+          {
+            node: <p className="text-green-400">● trade-service.service - active (running) on :8083 [Audit Log & Execution]</p>,
+            delay: 90,
+          },
+          {
+            node: <p className="text-green-400">● kafka-broker.service - active (streaming) topics: [trade.settlement, driver.geo]</p>,
+            delay: 90,
+          },
+          {
+            node: <p className="text-green-400">● redis-cluster.service - active (in-memory) lookup-latency: &lt; 50ms</p>,
+            delay: 90,
+          },
+        ];
+
+      case "projects":
+        return [
+          {
+            node: (
+              <div className="pt-0.5">
+                <p className="text-accent font-semibold">[01] TradeX — Distributed Crypto Trading Engine</p>
+                <p className="text-muted">Java, Spring Boot, Kafka, MySQL, Eureka, API Gateway</p>
+                <p className="text-fg/70">3 Microservices · O(log n) matching · 2-balance wallet locking</p>
+              </div>
+            ),
+            delay: 90,
+          },
+          {
+            node: (
+              <div className="pt-1.5">
+                <p className="text-accent font-semibold">[02] Ride-Sharing System — Uber-like Backend</p>
+                <p className="text-muted">Java, Spring Boot, Kafka, Redis GEO, MySQL, WebSockets</p>
+                <p className="text-fg/70">Sub-50ms driver lookups · Transactional driver state · Real-time socket stream</p>
+              </div>
+            ),
+            delay: 150,
+          },
+          {
+            node: (
+              <div className="pt-1.5">
+                <p className="text-accent font-semibold">[03] AI Video Assistant (RAG Pipeline)</p>
+                <p className="text-muted">Python, Streamlit, LangChain, Whisper, ChromaDB, Mistral AI</p>
+                <p className="text-fg/70">6-Stage RAG pipeline · Whisper English/Hindi ASR · 5 structured outputs</p>
+              </div>
+            ),
+            delay: 150,
+          },
+        ];
+
+      case "skills":
+        return [
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">Languages:</span> Java, Python, SQL, JavaScript, HTML, CSS
+              </p>
+            ),
+            delay: 60,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">Frameworks:</span> Spring Boot, Spring Security, Spring Cloud, Hibernate/JPA
+              </p>
+            ),
+            delay: 70,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">Architecture:</span> Microservices, Eureka, API Gateway, Event-Driven, Concurrency
+              </p>
+            ),
+            delay: 70,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">Data & Streams:</span> Apache Kafka, Redis, MySQL, MongoDB, ChromaDB
+              </p>
+            ),
+            delay: 70,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">AI & RAG:</span> LangChain, OpenAI Whisper, Sentence Transformers
+              </p>
+            ),
+            delay: 70,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">Tools:</span> Docker, Docker Compose, Git, Postman
+              </p>
+            ),
+            delay: 70,
+          },
+        ];
+
+      case "benchmark":
+        return [
+          {
+            node: <p className="text-yellow-400 font-semibold">--- Running System Concurrency Benchmark ---</p>,
+            delay: 120,
+          },
+          {
+            node: <p className="text-fg/80">[1] Dispatching 10,000 concurrent trade orders across 2 Priority Queues...</p>,
+            delay: 280,
+          },
+          {
+            node: <p className="text-green-400">✔ Matching Complexity: O(log n) verified. 0 order collisions.</p>,
+            delay: 240,
+          },
+          {
+            node: <p className="text-fg/80">[2] Pinging Redis GEO spatial index radius (5km)...</p>,
+            delay: 280,
+          },
+          {
+            node: <p className="text-green-400">✔ Nearest driver query latency: 38.4ms (Target: &lt;50ms) PASS.</p>,
+            delay: 240,
+          },
+          {
+            node: <p className="text-fg/80">[3] Kafka event stream throughput...</p>,
+            delay: 280,
+          },
+          {
+            node: <p className="text-green-400">✔ Asynchronous settlement events decoupled. Zero double-spend exceptions.</p>,
+            delay: 240,
+          },
+          {
+            node: <p className="text-accent font-semibold pt-0.5">ALL BENCHMARKS SATISFIED.</p>,
+            delay: 200,
+          },
+        ];
+
+      case "education":
+        return [
+          {
+            node: (
+              <div>
+                <p className="text-accent font-semibold">Army Institute of Technology, Pune (2023 - 2027)</p>
+                <p className="text-muted">B.E. Electronics & Telecommunication · CGPA: 8.17</p>
+              </div>
+            ),
+            delay: 80,
+          },
+          {
+            node: (
+              <div className="pt-1">
+                <p className="text-accent font-semibold">Army Public School, Gorakhpur (2021 - 2022)</p>
+                <p className="text-muted">Higher Secondary (CBSE) · 88.2%</p>
+              </div>
+            ),
+            delay: 110,
+          },
+        ];
+
+      case "contact":
+        return [
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">Email:</span>{" "}
+                <a href="mailto:viveksinghait2027@gmail.com" className="underline hover:text-white transition-colors">
+                  viveksinghait2027@gmail.com
+                </a>
+              </p>
+            ),
+            delay: 50,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">Phone:</span> +91-6394127185
+              </p>
+            ),
+            delay: 50,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">GitHub:</span>{" "}
+                <a
+                  href="https://github.com/FABvivek"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline text-accent hover:text-white transition-colors"
+                >
+                  github.com/FABvivek
+                </a>
+              </p>
+            ),
+            delay: 50,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">LinkedIn:</span>{" "}
+                <a
+                  href="https://linkedin.com/in/vivek-singh-072242309"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline text-accent hover:text-white transition-colors"
+                >
+                  linkedin.com/in/vivek-singh-072242309
+                </a>
+              </p>
+            ),
+            delay: 50,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">LeetCode:</span>{" "}
+                <a
+                  href="https://leetcode.com/u/fabvivek"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline text-accent hover:text-white transition-colors"
+                >
+                  leetcode.com/u/fabvivek
+                </a>
+              </p>
+            ),
+            delay: 50,
+          },
+        ];
+
+      default:
+        return [
+          {
+            node: (
+              <p className="text-red-400">
+                command not found: {rawCmd.trim()}. Type &apos;help&apos; for available commands.
+              </p>
+            ),
+            delay: 50,
+          },
+        ];
+    }
+  };
+
+  const handleCommand = (cmdStr: string) => {
+    if (isExecuting) return;
+    const trimmed = cmdStr.trim();
+    if (!trimmed) return;
+
+    setInput("");
+    setHistoryIndex(-1);
+    setCommandHistoryList((prev) => [...prev, trimmed]);
+
+    if (trimmed.toLowerCase() === "clear") {
+      clearAllTimeouts();
+      executionIdRef.current += 1;
+      setIsExecuting(false);
+      setHistory([]);
+      return;
+    }
+
+    const linesToStream = getCommandLines(trimmed);
+    const entryId = "cmd-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+
+    // Add entry immediately with empty lines
+    setHistory((prev) => [
+      ...prev,
+      {
+        id: entryId,
+        command: trimmed,
+        lines: [],
+        isStreaming: true,
+      },
+    ]);
+
+    setIsExecuting(true);
+    const currentExecutionId = ++executionIdRef.current;
+
+    let accumulatedDelay = 0;
+    linesToStream.forEach((item, index) => {
+      accumulatedDelay += item.delay || 70;
+      const timeoutId = setTimeout(() => {
+        if (executionIdRef.current !== currentExecutionId) return;
+
+        const isLast = index === linesToStream.length - 1;
+
+        setHistory((prev) =>
+          prev.map((entry) => {
+            if (entry.id !== entryId) return entry;
+            return {
+              ...entry,
+              lines: [...entry.lines, item.node],
+              isStreaming: !isLast,
+            };
+          })
+        );
+
+        if (isLast) {
+          setIsExecuting(false);
+          setTimeout(() => inputRef.current?.focus(), 20);
+        }
+      }, accumulatedDelay);
+
+      timeoutsRef.current.push(timeoutId);
+    });
+  };
+
+  const handleCancel = () => {
+    if (!isExecuting) return;
+    clearAllTimeouts();
+    executionIdRef.current += 1;
+    setIsExecuting(false);
+    setHistory((prev) => {
+      if (prev.length === 0) return prev;
+      const last = prev[prev.length - 1];
+      return [
+        ...prev.slice(0, -1),
+        {
+          ...last,
+          lines: [
+            ...last.lines,
+            <p key="cancel" className="text-muted/70 italic text-[11px] pt-1">
+              ^C (process terminated)
+            </p>,
+          ],
+          isStreaming: false,
+        },
+      ];
+    });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Ctrl+C to terminate running process
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c" && isExecuting) {
+      e.preventDefault();
+      handleCancel();
+      return;
+    }
+
+    if (e.key === "Enter") {
+      handleCommand(input);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (commandHistoryList.length === 0) return;
+      const nextIdx = historyIndex + 1;
+      if (nextIdx < commandHistoryList.length) {
+        setHistoryIndex(nextIdx);
+        setInput(commandHistoryList[commandHistoryList.length - 1 - nextIdx]);
+      }
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (historyIndex > 0) {
+        const nextIdx = historyIndex - 1;
+        setHistoryIndex(nextIdx);
+        setInput(commandHistoryList[commandHistoryList.length - 1 - nextIdx]);
+      } else if (historyIndex === 0) {
+        setHistoryIndex(-1);
+        setInput("");
+      }
+    }
+  };
+
+  const handleReset = () => {
+    clearAllTimeouts();
+    executionIdRef.current += 1;
+    setIsExecuting(false);
+    setHistory([]);
+    setInput("");
+  };
 
   const copyLog = () => {
     navigator.clipboard.writeText(
@@ -233,7 +620,7 @@ export function Terminal() {
 
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => setHistory([])}
+                  onClick={handleReset}
                   className="hover:text-fg transition-colors flex items-center gap-1 text-[11px]"
                   title="Clear console"
                 >
@@ -252,14 +639,29 @@ export function Terminal() {
             </div>
 
             {/* Terminal Body */}
-            <div ref={terminalBodyRef} className="p-5 sm:p-6 min-h-[300px] max-h-[440px] overflow-y-auto space-y-4">
-              {history.map((item, idx) => (
-                <div key={idx} className="space-y-1.5 leading-relaxed">
+            <div
+              ref={terminalBodyRef}
+              onClick={() => inputRef.current?.focus()}
+              className="p-5 sm:p-6 min-h-[300px] max-h-[440px] overflow-y-auto space-y-4 cursor-text"
+            >
+              {history.map((item) => (
+                <div key={item.id} className="space-y-1.5 leading-relaxed">
                   <div className="flex items-center gap-2 text-muted">
                     <span className="text-accent font-semibold">vivek@core:~$</span>
                     <span className="text-fg">{item.command}</span>
                   </div>
-                  <div className="pl-4 border-l border-border/80">{item.output}</div>
+                  <div className="pl-4 border-l border-border/80 space-y-1">
+                    {item.lines.map((line, lIdx) => (
+                      <div key={lIdx} className="transition-all duration-150 ease-out">
+                        {line}
+                      </div>
+                    ))}
+                    {item.isStreaming && (
+                      <div className="flex items-center gap-1 text-accent pt-0.5">
+                        <span className="inline-block w-1.5 h-3.5 bg-accent animate-pulse" />
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -268,18 +670,35 @@ export function Terminal() {
             <div className="p-3 sm:p-4 bg-white/[0.015] border-t border-border flex items-center gap-3">
               <span className="text-accent font-bold pl-2">vivek@core:~$</span>
               <input
+                ref={inputRef}
                 type="text"
                 value={input}
+                disabled={isExecuting}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="type 'help', 'benchmark', 'projects', or 'skills'..."
-                className="w-full bg-transparent text-fg placeholder:text-muted/40 focus:outline-none font-mono text-xs"
+                placeholder={
+                  isExecuting
+                    ? "Executing command... (press Ctrl+C to cancel)"
+                    : "type 'help', 'benchmark', 'projects', or 'skills'..."
+                }
+                className="w-full bg-transparent text-fg placeholder:text-muted/40 focus:outline-none font-mono text-xs disabled:opacity-60"
               />
               <button
+                disabled={isExecuting}
                 onClick={() => handleCommand(input)}
-                className="px-3.5 py-1.5 rounded border border-accent/60 bg-accent/10 text-accent font-mono text-[11px] font-medium hover:bg-accent hover:text-bg transition-colors shrink-0"
+                className="px-3.5 py-1.5 rounded border border-accent/60 bg-accent/10 text-accent font-mono text-[11px] font-medium hover:bg-accent hover:text-bg transition-colors shrink-0 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
               >
-                Run
+                {isExecuting ? (
+                  <>
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    <span>Running</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-3 h-3" />
+                    <span>Run</span>
+                  </>
+                )}
               </button>
             </div>
 
@@ -289,8 +708,9 @@ export function Terminal() {
               {quickCommands.map((q) => (
                 <button
                   key={q}
+                  disabled={isExecuting}
                   onClick={() => handleCommand(q)}
-                  className="px-2.5 py-0.5 rounded border border-border/70 hover:border-accent hover:text-accent text-muted transition-colors font-mono"
+                  className="px-2.5 py-0.5 rounded border border-border/70 hover:border-accent hover:text-accent text-muted transition-colors font-mono disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {q}
                 </button>
@@ -302,3 +722,4 @@ export function Terminal() {
     </section>
   );
 }
+
