@@ -1,0 +1,247 @@
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-bg: 3 3 3; /* #030303 Obsidian */
+    --color-surface: 11 11 11; /* #0B0B0B */
+    --color-fg: 241 238 232; /* #F1EEE8 Warm bone-white */
+    --color-muted: 170 169 164; /* #AAA9A4 Warm titanium */
+    --color-accent: 255 140 89; /* #FF8C59 Sarthak signature Sunset Amber */
+    --accent-hex: #FF8C59;
+    --color-border: rgba(241, 238, 232, 0.1);
+    --font-serif: "Instrument Serif", Georgia, serif;
+    --font-sans: "DM Sans", Arial, sans-serif;
+    --gutter: clamp(24px, 5vw, 88px);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: rgb(var(--color-bg));
+    color: rgb(var(--color-fg));
+    font-family: var(--font-sans), Arial, sans-serif;
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+
+  /* Headings with editorial serif */
+  h1, h2, h3 {
+    font-weight: 400;
+  }
+
+  /* em in headings stays bone-white italic, NOT orange */
+  em {
+    font-style: italic;
+    color: inherit;
+  }
+
+  /* Selection styling */
+  ::selection {
+    background-color: #FF8C59;
+    color: #030303;
+  }
+
+  /* Focus styling */
+  :focus-visible {
+    outline: 2px solid rgb(var(--color-accent));
+    outline-offset: 3px;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgb(var(--color-bg));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(241, 238, 232, 0.15);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--color-accent), 0.5);
+  }
+}
+
+@layer components {
+  /* Skip to content link */
+  .skip-to-content {
+    @apply fixed top-0 left-1/2 -translate-x-1/2 -translate-y-full z-[10000] px-6 py-3 bg-accent text-bg font-mono text-xs uppercase tracking-wider rounded-b-lg transition-transform duration-200;
+  }
+
+  .skip-to-content:focus {
+    @apply translate-y-0;
+  }
+
+  /* Section padding */
+  .section-padding {
+    padding-left: var(--gutter);
+    padding-right: var(--gutter);
+  }
+
+  /* Sarthak Live Status Dot (5px glowing dot) */
+  .live-dot {
+    background-color: #FF8C59;
+    border-radius: 9999px;
+    width: 5px;
+    height: 5px;
+    display: inline-block;
+    box-shadow: 0 0 12px rgba(255, 140, 89, 0.65);
+    flex-shrink: 0;
+  }
+
+  /* Sarthak Vertical Scroll Line */
+  .scroll-line {
+    background: linear-gradient(to bottom, transparent, #FF8C59);
+    width: 1px;
+    height: 32px;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* Sarthak Frosted Pill Link */
+  .pill-link {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(14, 13, 12, 0.85);
+    border: 1px solid rgba(241, 238, 232, 0.2);
+    border-radius: 40px;
+    align-items: center;
+    gap: 16px;
+    padding: 13px 24px;
+    font-size: 11px;
+    font-family: var(--font-mono), monospace;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #F1EEE8;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    text-decoration: none;
+  }
+
+  .pill-link:hover {
+    background: #FF8C59;
+    color: #030303;
+    border-color: #FF8C59;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(255, 140, 89, 0.25);
+  }
+
+  /* Sarthak Minimal Text Link with Underline */
+  .text-link {
+    border-bottom: 1px solid rgba(241, 238, 232, 0.28);
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 5px;
+    font-size: 11px;
+    font-family: var(--font-mono), monospace;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #DEDAD4;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    text-decoration: none;
+  }
+
+  .text-link:hover {
+    color: #FF8C59;
+    border-bottom-color: #FF8C59;
+    gap: 14px;
+  }
+
+  /* Sarthak Hero Backdrop & Fallback */
+  .scene-backdrop {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .artifact-fallback {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(500px, 86vw);
+    height: 620px;
+    opacity: 0.88;
+    -webkit-mask-image: linear-gradient(to bottom, #000 50%, rgba(0, 0, 0, 0.6) 72%, transparent 95%);
+    mask-image: linear-gradient(to bottom, #000 50%, rgba(0, 0, 0, 0.6) 72%, transparent 95%);
+  }
+
+  /* Sarthak Hero Grid */
+  .hero-grid {
+    position: absolute;
+    inset: 90px var(--gutter) 0;
+    z-index: 0;
+    background: linear-gradient(90deg, rgba(241, 238, 232, 0.04) 1px, transparent 1px);
+    background-size: 16.666% 100%;
+    opacity: 0.6;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent 92%);
+    mask-image: linear-gradient(to bottom, #000 60%, transparent 92%);
+  }
+
+  /* Sarthak Hero Kicker */
+  .hero-kicker {
+    font-family: var(--font-mono), monospace;
+    letter-spacing: 2.2px;
+    font-size: 9px;
+    text-transform: uppercase;
+    color: #c4bcb3;
+    margin-bottom: 14px;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* Sarthak Hero Side Note */
+  .hero-side-note {
+    position: absolute;
+    left: var(--gutter);
+    top: 38%;
+    z-index: 10;
+    font-family: var(--font-mono), monospace;
+    font-size: 8.5px;
+    line-height: 1.85;
+    letter-spacing: 1.4px;
+    color: #a39b93;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    pointer-events: none;
+  }
+}
+
+/* Lenis styles */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
