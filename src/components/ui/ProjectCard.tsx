@@ -13,6 +13,11 @@ interface ProjectCardProps {
 export function ProjectCard({ project, index }: ProjectCardProps) {
   const isEven = index % 2 === 0;
 
+  const isSmartDoc = project.title.toLowerCase().includes("smartdoc");
+  const isVideoAssistant = project.title.toLowerCase().includes("video");
+  const isTradeX = project.title.toLowerCase().includes("tradex");
+  const isRideSharing = project.title.toLowerCase().includes("ride");
+
   return (
     <FadeIn delay={index * 0.15}>
       <article
@@ -55,8 +60,8 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
                   }}
                 />
 
-                {/* SVG 1: TradeX Architecture */}
-                {index === 0 && (
+                {/* SVG: TradeX Architecture */}
+                {isTradeX && (
                   <svg viewBox="0 0 440 280" className="w-full h-full relative z-10" fill="none" xmlns="http://www.w3.org/2000/svg">
                     {/* Eureka Registry */}
                     <rect x="300" y="15" width="115" height="34" rx="6" stroke="var(--accent-hex, #38BDF8)" strokeWidth="1" strokeDasharray="3 3" fill="#030303" fillOpacity="0.8" />
@@ -101,8 +106,8 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
                   </svg>
                 )}
 
-                {/* SVG 2: Ride-Sharing Architecture */}
-                {index === 1 && (
+                {/* SVG: Ride-Sharing Architecture */}
+                {isRideSharing && (
                   <svg viewBox="0 0 440 280" className="w-full h-full relative z-10" fill="none" xmlns="http://www.w3.org/2000/svg">
                     {/* Mobile Client & Driver Apps */}
                     <rect x="30" y="20" width="160" height="36" rx="6" stroke="#F2EFE9" strokeWidth="1" fill="#141414" />
@@ -143,8 +148,8 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
                   </svg>
                 )}
 
-                {/* SVG 3: AI Video Assistant RAG Pipeline */}
-                {index === 2 && (
+                {/* SVG: AI Video Assistant RAG Pipeline */}
+                {isVideoAssistant && (
                   <svg viewBox="0 0 440 280" className="w-full h-full relative z-10" fill="none" xmlns="http://www.w3.org/2000/svg">
                     {/* Stage 1: Video Ingest */}
                     <rect x="20" y="25" width="115" height="42" rx="6" stroke="#8A8A8A" strokeWidth="1" fill="#141414" />
@@ -194,6 +199,77 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
                     <path d="M162 137 L135 137" stroke="var(--accent-hex, #38BDF8)" strokeWidth="1" />
                     <path d="M77 160 L77 195" stroke="var(--accent-hex, #38BDF8)" strokeWidth="1" />
                     <path d="M220 233 L220 248" stroke="#8A8A8A" strokeWidth="1" />
+                  </svg>
+                )}
+
+                {/* SVG: SmartDoc AI Semantic Caching Architecture */}
+                {isSmartDoc && (
+                  <svg viewBox="0 0 440 280" className="w-full h-full relative z-10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    {/* Client UI */}
+                    <rect x="20" y="20" width="125" height="42" rx="6" stroke="#F2EFE9" strokeWidth="1" fill="#141414" />
+                    <text x="82" y="40" textAnchor="middle" fill="#F2EFE9" fontSize="10" fontFamily="monospace" fontWeight="600">React + Vite UI</text>
+                    <text x="82" y="53" textAnchor="middle" fill="#8A8A8A" fontSize="8" fontFamily="monospace">SSE Stream :5173</text>
+
+                    {/* FastAPI Gateway & Router */}
+                    <rect x="165" y="20" width="145" height="42" rx="6" stroke="var(--accent-hex, #38BDF8)" strokeWidth="1.2" fill="#0c1205" />
+                    <text x="237" y="40" textAnchor="middle" fill="var(--accent-hex, #38BDF8)" fontSize="10" fontFamily="monospace" fontWeight="700">FastAPI Router :8000</text>
+                    <text x="237" y="53" textAnchor="middle" fill="#8A8A8A" fontSize="8" fontFamily="monospace">Async Rewriter &amp; Intent Guard</text>
+
+                    {/* Nomic Embedding Model */}
+                    <rect x="330" y="20" width="90" height="42" rx="6" stroke="#8A8A8A" strokeWidth="1" fill="#141414" />
+                    <text x="375" y="40" textAnchor="middle" fill="#F2EFE9" fontSize="9" fontFamily="monospace" fontWeight="600">Nomic Embed</text>
+                    <text x="375" y="53" textAnchor="middle" fill="#8A8A8A" fontSize="8" fontFamily="monospace">768-Dim Vector</text>
+
+                    {/* RediSearch KNN Semantic Cache */}
+                    <rect x="20" y="100" width="190" height="52" rx="6" stroke="var(--accent-hex, #38BDF8)" strokeWidth="1.4" fill="#0c1205" />
+                    <text x="115" y="121" textAnchor="middle" fill="var(--accent-hex, #38BDF8)" fontSize="10" fontFamily="monospace" fontWeight="700">RediSearch KNN Cache</text>
+                    <text x="115" y="135" textAnchor="middle" fill="#8A8A8A" fontSize="8" fontFamily="monospace">HIT Latency: 28ms (~147x)</text>
+                    <text x="115" y="146" textAnchor="middle" fill="var(--accent-hex, #38BDF8)" fontSize="8" fontFamily="monospace">Tag Isolation Filters (SHA-256)</text>
+
+                    {/* pgvector Retriever */}
+                    <rect x="230" y="100" width="190" height="52" rx="6" stroke="var(--accent-hex, #38BDF8)" strokeWidth="1.2" fill="#0c1205" />
+                    <text x="325" y="121" textAnchor="middle" fill="var(--accent-hex, #38BDF8)" fontSize="10" fontFamily="monospace" fontWeight="700">pgvector Cosine Store</text>
+                    <text x="325" y="135" textAnchor="middle" fill="#8A8A8A" fontSize="8" fontFamily="monospace">PostgreSQL 16 · HNSW Index</text>
+                    <text x="325" y="146" textAnchor="middle" fill="#8A8A8A" fontSize="8" fontFamily="monospace">PyMuPDF Page-Aware Chunks</text>
+
+                    {/* Local Host Ollama LLM */}
+                    <rect x="20" y="190" width="400" height="38" rx="8" stroke="var(--accent-hex, #38BDF8)" strokeWidth="1.5" strokeDasharray="5 5" fill="#101807" />
+                    <text x="220" y="214" textAnchor="middle" fill="var(--accent-hex, #38BDF8)" fontSize="11" fontFamily="monospace" fontWeight="700">
+                      Local Ollama · Llama 3.2 (3B) / 3.1 (8B) Inference (8192 ctx)
+                    </text>
+
+                    {/* Telemetry & Reverse Invalidation */}
+                    <rect x="105" y="248" width="230" height="24" rx="4" stroke="#8A8A8A" strokeWidth="0.8" fill="#141414" />
+                    <text x="220" y="264" textAnchor="middle" fill="#8A8A8A" fontSize="9" fontFamily="monospace">Telemetry &amp; Reverse Invalidation (0 Leak)</text>
+
+                    {/* Connectors */}
+                    <path d="M145 41 L165 41" stroke="var(--accent-hex, #38BDF8)" strokeWidth="1" />
+                    <path d="M310 41 L330 41" stroke="#8A8A8A" strokeWidth="1" strokeDasharray="2 2" />
+                    <path d="M200 62 L115 100" stroke="var(--accent-hex, #38BDF8)" strokeWidth="1.2" />
+                    <path d="M260 62 L325 100" stroke="#8A8A8A" strokeWidth="1" strokeDasharray="2 2" />
+                    <path d="M210 126 L230 126" stroke="#8A8A8A" strokeWidth="1" strokeDasharray="3 3" />
+                    <path d="M325 152 L325 190" stroke="var(--accent-hex, #38BDF8)" strokeWidth="1.5" />
+                    <path d="M75 100 L75 62" stroke="var(--accent-hex, #38BDF8)" strokeWidth="1.2" />
+                    <path d="M220 228 L220 248" stroke="#8A8A8A" strokeWidth="1" />
+                  </svg>
+                )}
+
+                {/* Generic Fallback Architecture Diagram */}
+                {!isTradeX && !isRideSharing && !isVideoAssistant && !isSmartDoc && (
+                  <svg viewBox="0 0 440 280" className="w-full h-full relative z-10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="40" y="30" width="360" height="60" rx="8" stroke="var(--accent-hex, #38BDF8)" strokeWidth="1.2" fill="#0c1205" />
+                    <text x="220" y="65" textAnchor="middle" fill="var(--accent-hex, #38BDF8)" fontSize="12" fontFamily="monospace" fontWeight="700">{project.title}</text>
+                    <rect x="40" y="120" width="165" height="70" rx="6" stroke="#8A8A8A" strokeWidth="1" fill="#141414" />
+                    <text x="122" y="155" textAnchor="middle" fill="#F2EFE9" fontSize="10" fontFamily="monospace">System Core</text>
+                    <text x="122" y="170" textAnchor="middle" fill="#8A8A8A" fontSize="8" fontFamily="monospace">{project.category}</text>
+                    <rect x="235" y="120" width="165" height="70" rx="6" stroke="var(--accent-hex, #38BDF8)" strokeWidth="1.2" fill="#101807" />
+                    <text x="317" y="155" textAnchor="middle" fill="var(--accent-hex, #38BDF8)" fontSize="10" fontFamily="monospace">Verified Architecture</text>
+                    <text x="317" y="170" textAnchor="middle" fill="#8A8A8A" fontSize="8" fontFamily="monospace">High-Performance Runtime</text>
+                    <path d="M220 90 L220 120" stroke="var(--accent-hex, #38BDF8)" strokeWidth="1" />
+                    <path d="M122 90 L122 120" stroke="#8A8A8A" strokeWidth="1" strokeDasharray="2 2" />
+                    <path d="M317 90 L317 120" stroke="var(--accent-hex, #38BDF8)" strokeWidth="1" />
+                    <rect x="120" y="225" width="200" height="30" rx="6" stroke="#8A8A8A" strokeWidth="0.8" fill="#141414" />
+                    <text x="220" y="244" textAnchor="middle" fill="#8A8A8A" fontSize="9" fontFamily="monospace">Active Engineering Environment</text>
                   </svg>
                 )}
 

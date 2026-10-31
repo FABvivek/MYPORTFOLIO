@@ -40,7 +40,7 @@ export function Terminal() {
           B.E. Electronics & Telecommunication (2023–2027) @ Army Institute of Technology, Pune (CGPA: 8.17)
         </div>,
         <div key="w-3" className="text-fg/80">
-          650+ DSA Solved · LeetCode 1550+ · CodeChef Starters 225 Rank #320 globally
+          650+ DSA Solved · CodeChef 1683+ (Div 2) · Starters 225 Rank #320 globally
         </div>,
       ],
       isStreaming: false,
@@ -63,6 +63,9 @@ export function Terminal() {
         </div>,
         <div key="s-5" className="text-green-400">
           ● redis-cluster.service - active (in-memory) lookup-latency: &lt; 50ms
+        </div>,
+        <div key="s-6" className="text-green-400">
+          ● redis-semantic-cache.service - active (knn-indexed) hit-speedup: ~147x [28ms]
         </div>,
       ],
       isStreaming: false,
@@ -184,7 +187,7 @@ export function Terminal() {
           {
             node: (
               <p className="text-fg/80">
-                650+ DSA Solved · LeetCode 1550+ · CodeChef Starters 225 Rank #320 globally
+                650+ DSA Solved · CodeChef 1683+ (Div 2) · Starters 225 Rank #320 globally
               </p>
             ),
             delay: 80,
@@ -216,6 +219,10 @@ export function Terminal() {
             node: <p className="text-green-400">● redis-cluster.service - active (in-memory) lookup-latency: &lt; 50ms</p>,
             delay: 90,
           },
+          {
+            node: <p className="text-green-400">● redis-semantic-cache.service - active (knn-indexed) hit-speedup: ~147x [28ms]</p>,
+            delay: 90,
+          },
         ];
 
       case "projects":
@@ -223,9 +230,9 @@ export function Terminal() {
           {
             node: (
               <div className="pt-0.5">
-                <p className="text-accent font-semibold">[01] TradeX — Distributed Crypto Trading Engine</p>
-                <p className="text-muted">Java, Spring Boot, Kafka, MySQL, Eureka, API Gateway</p>
-                <p className="text-fg/70">3 Microservices · O(log n) matching · 2-balance wallet locking</p>
+                <p className="text-accent font-semibold">[01] SmartDoc AI — RAG with RediSearch Semantic Cache</p>
+                <p className="text-muted">Python, FastAPI, Redis Stack, PostgreSQL, pgvector, Ollama</p>
+                <p className="text-fg/70">RediSearch KNN cache · 147x latency speedup (28ms) · Intent guardrails</p>
               </div>
             ),
             delay: 90,
@@ -233,9 +240,9 @@ export function Terminal() {
           {
             node: (
               <div className="pt-1.5">
-                <p className="text-accent font-semibold">[02] Ride-Sharing System — Uber-like Backend</p>
-                <p className="text-muted">Java, Spring Boot, Kafka, Redis GEO, MySQL, WebSockets</p>
-                <p className="text-fg/70">Sub-50ms driver lookups · Transactional driver state · Real-time socket stream</p>
+                <p className="text-accent font-semibold">[02] AI Video Assistant (RAG Pipeline)</p>
+                <p className="text-muted">Python, Streamlit, LangChain, Whisper, ChromaDB, Mistral AI</p>
+                <p className="text-fg/70">6-Stage RAG pipeline · Whisper English/Hindi ASR · 5 structured outputs</p>
               </div>
             ),
             delay: 150,
@@ -243,9 +250,19 @@ export function Terminal() {
           {
             node: (
               <div className="pt-1.5">
-                <p className="text-accent font-semibold">[03] AI Video Assistant (RAG Pipeline)</p>
-                <p className="text-muted">Python, Streamlit, LangChain, Whisper, ChromaDB, Mistral AI</p>
-                <p className="text-fg/70">6-Stage RAG pipeline · Whisper English/Hindi ASR · 5 structured outputs</p>
+                <p className="text-accent font-semibold">[03] TradeX — Distributed Crypto Trading Engine</p>
+                <p className="text-muted">Java, Spring Boot, Kafka, MySQL, Eureka, API Gateway</p>
+                <p className="text-fg/70">3 Microservices · O(log n) matching · 2-balance wallet locking</p>
+              </div>
+            ),
+            delay: 150,
+          },
+          {
+            node: (
+              <div className="pt-1.5">
+                <p className="text-accent font-semibold">[04] Ride-Sharing System — Uber-like Backend</p>
+                <p className="text-muted">Java, Spring Boot, Kafka, Redis GEO, MySQL, WebSockets</p>
+                <p className="text-fg/70">Sub-50ms driver lookups · Transactional driver state · Real-time socket stream</p>
               </div>
             ),
             delay: 150,
@@ -265,7 +282,7 @@ export function Terminal() {
           {
             node: (
               <p>
-                <span className="text-accent font-medium">Frameworks:</span> Spring Boot, Spring Security, Spring Cloud, Hibernate/JPA
+                <span className="text-accent font-medium">Frameworks:</span> Spring Boot, FastAPI, Spring Security, Spring Cloud, Hibernate/JPA
               </p>
             ),
             delay: 70,
@@ -281,7 +298,7 @@ export function Terminal() {
           {
             node: (
               <p>
-                <span className="text-accent font-medium">Data & Streams:</span> Apache Kafka, Redis, MySQL, MongoDB, ChromaDB
+                <span className="text-accent font-medium">Data & Streams:</span> Apache Kafka, Redis (GEO & RediSearch), MySQL, PostgreSQL (pgvector), MongoDB, ChromaDB
               </p>
             ),
             delay: 70,
@@ -289,7 +306,7 @@ export function Terminal() {
           {
             node: (
               <p>
-                <span className="text-accent font-medium">AI & RAG:</span> LangChain, OpenAI Whisper, Sentence Transformers
+                <span className="text-accent font-medium">AI & RAG:</span> Semantic Caching, Ollama, LangChain, OpenAI Whisper, Sentence Transformers
               </p>
             ),
             delay: 70,
@@ -332,6 +349,14 @@ export function Terminal() {
           },
           {
             node: <p className="text-green-400">✔ Asynchronous settlement events decoupled. Zero double-spend exceptions.</p>,
+            delay: 240,
+          },
+          {
+            node: <p className="text-fg/80">[4] RediSearch KNN semantic vector cache lookup...</p>,
+            delay: 280,
+          },
+          {
+            node: <p className="text-green-400">✔ Semantic hit: 28ms vs 4,120ms LLM baseline (~147x speedup). 100% tokens saved.</p>,
             delay: 240,
           },
           {
@@ -410,6 +435,22 @@ export function Terminal() {
                   className="underline text-accent hover:text-white transition-colors"
                 >
                   linkedin.com/in/vivek-singh-072242309
+                </a>
+              </p>
+            ),
+            delay: 50,
+          },
+          {
+            node: (
+              <p>
+                <span className="text-accent font-medium">CodeChef:</span>{" "}
+                <a
+                  href="https://www.codechef.com/users/fab_vivek"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline text-accent hover:text-white transition-colors"
+                >
+                  codechef.com/users/fab_vivek
                 </a>
               </p>
             ),

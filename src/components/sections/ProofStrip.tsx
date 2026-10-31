@@ -37,10 +37,10 @@ export function ProofStrip() {
           <FadeIn delay={0.15}>
             <div className="border-l border-border pl-5">
               <div className="font-serif text-3xl sm:text-4xl lg:text-5xl text-fg font-normal tracking-tight">
-                1550<span className="text-accent">+</span>
+                1683<span className="text-accent">+</span>
               </div>
               <p className="mt-1 font-sans text-xs sm:text-sm text-muted">
-                LeetCode contest rating in weekly algorithms
+                DSA rating on CodeChef (Division 2)
               </p>
             </div>
           </FadeIn>

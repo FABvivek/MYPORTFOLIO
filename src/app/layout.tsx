@@ -76,7 +76,7 @@ export default function RootLayout({
       "https://github.com/FABvivek",
       "https://linkedin.com/in/vivek-singh-072242309",
       "https://leetcode.com/u/fabvivek",
-      "https://www.codechef.com/users/fabvivek",
+      "https://www.codechef.com/users/fab_vivek",
     ],
     alumniOf: {
       "@type": "CollegeOrUniversity",

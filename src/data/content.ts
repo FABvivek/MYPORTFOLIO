@@ -72,7 +72,7 @@ export interface SocialLink {
 // Content data
 export const siteMetadata = {
   title: "Vivek Singh | Backend Engineer & Distributed Systems",
-  description: "Backend engineer building high-performance microservices, event-driven architectures with Kafka, low-latency Redis services, and RAG applications. B.E. at Army Institute of Technology, Pune.",
+  description: "Backend engineer building high-performance microservices, event-driven architectures with Kafka, sub-50ms Redis caches, and semantic caching RAG pipelines. B.E. at Army Institute of Technology, Pune.",
   url: "https://viveksingh.dev",
   themeColor: "#030303",
   keywords: [
@@ -83,6 +83,11 @@ export const siteMetadata = {
     "Spring Boot",
     "Apache Kafka",
     "Redis",
+    "RediSearch",
+    "Semantic Caching",
+    "FastAPI",
+    "PostgreSQL",
+    "pgvector",
     "RAG",
     "LangChain",
     "Army Institute of Technology",
@@ -104,7 +109,7 @@ export const hero = {
   eyebrow: "A SYSTEM-LEVEL PERSPECTIVE ON SOFTWARE",
   name: "Vivek Singh",
   subtitle: "Backend-focused engineer building high-throughput microservices, event-driven architectures with Apache Kafka, and production RAG pipelines with Python and LangChain.",
-  bioLine: "Solved 650+ Data Structures & Algorithms problems (LeetCode 1550+, CodeChef Top 320 globally) with a relentless focus on clean concurrency and low-latency system design.",
+  bioLine: "Solved 650+ Data Structures & Algorithms problems (CodeChef 1683+, Top 320 globally) with a relentless focus on clean concurrency and low-latency system design.",
   cta1: { label: "Explore my work", href: "#work" },
   cta2: { label: "Download Resume", href: "/Vivek_Singh_Resume.pdf" },
   ctaContact: { label: "Start a conversation", href: "#contact" },
@@ -117,7 +122,7 @@ export const hero = {
   stats: [
     { value: "650+", label: "DSA problems solved" },
     { value: "Top 320", label: "globally in CodeChef Starters 225" },
-    { value: "1550+", label: "LeetCode contest rating" },
+    { value: "1683+", label: "DSA rating on CodeChef" },
     { value: "8.17", label: "CGPA at AIT Pune" },
   ] as HeroStat[],
 };
@@ -127,6 +132,9 @@ export const marqueeKeywords = [
   "SPRING BOOT",
   "APACHE KAFKA",
   "REDIS GEO",
+  "SEMANTIC CACHING",
+  "FASTAPI",
+  "PGVECTOR",
   "MYSQL",
   "MICROSERVICES",
   "API GATEWAY",
@@ -184,8 +192,8 @@ export const about = {
       id: "explore",
       label: "AI / RAG",
       tagline: "Bridging distributed backends with LLM intelligence",
-      description: "I assemble 6-stage RAG pipelines using LangChain, OpenAI Whisper for multilingual speech chunking, and ChromaDB vector indexing to transform unstructured media into deterministic, structured data and interactive Q&A.",
-      keywords: ["RAG Pipelines", "LangChain", "OpenAI Whisper", "ChromaDB", "Sentence Transformers", "Streamlit"],
+      description: "I assemble production RAG pipelines and RediSearch semantic caching architectures—combining local Ollama LLMs, pgvector HNSW indexing, and Whisper audio models to cut inference latencies by up to 147x.",
+      keywords: ["RAG Pipelines", "Semantic Caching", "RediSearch", "pgvector", "LangChain", "OpenAI Whisper", "ChromaDB"],
     },
   ] as Perspective[],
 };
@@ -194,10 +202,48 @@ export const work = {
   eyebrow: "02 / SELECTED WORK",
   subEyebrow: "ARCHITECTED. CODED. BENCHMARKED.",
   heading: { plain: "Ideas are a start.", italic: "This is the engineering." },
-  description: "A selection of production-grade systems, from multi-service financial matching engines to real-time geospatial dispatch and AI video assistants.",
+  description: "A selection of production-grade systems, from local semantic caching and multimodal RAG pipelines to high-throughput financial matching engines and real-time geospatial dispatch.",
   projects: [
     {
       number: "01",
+      category: "AI SYSTEMS · SEMANTIC CACHING & LOCAL RAG",
+      title: "SmartDoc AI — RAG with RediSearch Semantic Cache",
+      summary: "A production-grade, privacy-first Full-Stack RAG platform featuring RediSearch KNN vector semantic caching, 100% local LLM inference via Ollama, pgvector HNSW indexing, and granular latency telemetry.",
+      tech: ["Python", "FastAPI", "Redis Stack", "PostgreSQL", "pgvector", "Ollama", "React", "Docker"],
+      metrics: [
+        { label: "Cache Hit Speedup", value: "~147x Faster" },
+        { label: "P50 Latency (Hit)", value: "28ms" },
+        { label: "Token Savings", value: "100% on Hit" },
+      ],
+      highlights: [
+        { text: "Engineered a RediSearch KNN vector semantic cache with hard isolation filters (doc_set_hash, content_hash, config_hash)—dropping P50 query latency from 4,120ms to 28ms (~147x speedup)." },
+        { text: "Constructed deterministic intent and polarity guardrails to eliminate false-positive semantic matches on questions with negated semantics or divergent numeric values." },
+        { text: "Built an async multi-stage ingestion pipeline with PyMuPDF for page-preserving extraction and nomic-embed-text vectors indexed via PostgreSQL pgvector HNSW." },
+        { text: "Implemented contextual query rewriting to convert multi-turn conversational follow-up questions into standalone semantic search queries before retrieval." },
+        { text: "Designed dynamic cache invalidation using reverse indexing (doc_cache_entries:<doc_id>), guaranteeing instant cache consistency upon document deletion or reprocessing." },
+      ],
+      githubUrl: "https://github.com/FABvivek/AI-ChatBot-with-Semantic-Caching",
+    },
+    {
+      number: "02",
+      category: "AI / ML · MULTIMODAL RAG PIPELINE",
+      title: "AI Video Assistant — Video RAG & Transcription",
+      summary: "An end-to-end Retrieval-Augmented Generation assistant that ingests YouTube and local video, transcribes bilingual audio with Whisper, indexes embeddings in ChromaDB, and delivers structured Q&A.",
+      tech: ["Python", "Streamlit", "LangChain", "OpenAI Whisper", "ChromaDB", "Mistral AI", "yt-dlp", "ffmpeg"],
+      metrics: [
+        { label: "Pipeline Stages", value: "6 Stages" },
+        { label: "Languages", value: "English & Hindi" },
+        { label: "Vector Store", value: "ChromaDB" },
+      ],
+      highlights: [
+        { text: "Created an automated Retrieval-Augmented Generation (RAG) video pipeline featuring 6 distinct ingestion and inference stages supporting both YouTube URLs and file uploads." },
+        { text: "Integrated OpenAI Whisper ASR to accurately transcribe audio across 2 languages (English and Hindi), using yt-dlp and ffmpeg for segmented audio chunking." },
+        { text: "Assembled a LangChain RAG pipeline with ChromaDB vector store and Sentence Transformers generating 5 structured summary outputs and conversational semantic Q&A." },
+      ],
+      githubUrl: "https://github.com/FABvivek/AI-video-assistant-using-RAG",
+    },
+    {
+      number: "03",
       category: "DISTRIBUTED SYSTEMS · TRADING ENGINE",
       title: "TradeX — Distributed Crypto Trading Engine",
       summary: "A distributed cryptocurrency trading architecture featuring 3 Spring Boot microservices, high-performance order matching, Kafka-based asynchronous trade settlement, and double-spend protection.",
@@ -214,10 +260,10 @@ export const work = {
         { text: "Designed a 2-balance wallet model (available balance, locked balance) with pessimistic locking to completely prevent double spending across concurrent order placements." },
         { text: "Exposed clean RESTful APIs covering 3 full order lifecycle phases (placement, matching, execution) plus complete paginated trade history audit logs." },
       ],
-      githubUrl: "https://github.com/FABvivek",
+      githubUrl: "https://github.com/FABvivek/TradeX",
     },
     {
-      number: "02",
+      number: "04",
       category: "REAL-TIME SYSTEMS · GEOSPATIAL ENGINE",
       title: "Ride-Sharing System — Uber-like Backend",
       summary: "A low-latency backend powering real-time ride hailing, geospatial nearest-driver search with Redis GEO, event-driven Kafka trip workflows, and live driver tracking via WebSockets.",
@@ -234,25 +280,7 @@ export const work = {
         { text: "Persisted the full trip lifecycle (request, assignment, completion, cancellation) across 3 normalized stages in MySQL with referential integrity." },
         { text: "Streamed real-time driver coordinates over 1 persistent WebSocket connection per client, eliminating aggressive client-side polling overhead." },
       ],
-      githubUrl: "https://github.com/FABvivek",
-    },
-    {
-      number: "03",
-      category: "AI / ML · MULTIMODAL RAG PIPELINE",
-      title: "AI Video Assistant — Video RAG & Transcription",
-      summary: "An end-to-end Retrieval-Augmented Generation assistant that ingests YouTube and local video, transcribes bilingual audio with Whisper, indexes embeddings in ChromaDB, and delivers structured Q&A.",
-      tech: ["Python", "Streamlit", "LangChain", "OpenAI Whisper", "ChromaDB", "Mistral AI", "yt-dlp", "ffmpeg"],
-      metrics: [
-        { label: "Pipeline Stages", value: "6 Stages" },
-        { label: "Languages", value: "English & Hindi" },
-        { label: "Vector Store", value: "ChromaDB" },
-      ],
-      highlights: [
-        { text: "Created an automated Retrieval-Augmented Generation (RAG) video pipeline featuring 6 distinct ingestion and inference stages supporting both YouTube URLs and file uploads." },
-        { text: "Integrated OpenAI Whisper ASR to accurately transcribe audio across 2 languages (English and Hindi), using yt-dlp and ffmpeg for segmented audio chunking." },
-        { text: "Assembled a LangChain RAG pipeline with ChromaDB vector store and Sentence Transformers generating 5 structured summary outputs and conversational semantic Q&A." },
-      ],
-      githubUrl: "https://github.com/FABvivek",
+      githubUrl: "https://github.com/FABvivek/Ride-Sharing",
     },
   ] as Project[],
 };
@@ -271,7 +299,7 @@ export const skills = {
     {
       category: "Frameworks & Backend",
       iconName: "cpu",
-      skills: ["Spring Boot", "Spring Framework", "Spring Security", "Spring Cloud", "Hibernate / JPA", "RESTful APIs", "WebSockets"],
+      skills: ["Spring Boot", "FastAPI", "Spring Framework", "Spring Security", "Spring Cloud", "Hibernate / JPA", "RESTful APIs", "WebSockets"],
     },
     {
       category: "Architecture & Distributed",
@@ -281,17 +309,17 @@ export const skills = {
     {
       category: "Messaging & Caching",
       iconName: "zap",
-      skills: ["Apache Kafka (Topics, Partitions, Consumer Groups)", "Redis (GEO Indexing, Caching, Key-Value)"],
+      skills: ["Apache Kafka (Topics, Partitions, Consumer Groups)", "Redis (GEO Indexing, RediSearch Vector Cache, Key-Value)"],
     },
     {
       category: "Databases & Storage",
       iconName: "database",
-      skills: ["MySQL (ACID, Transactions, Locking)", "MongoDB (Document Store)", "ChromaDB (Vector Embeddings)"],
+      skills: ["MySQL (ACID, Transactions, Locking)", "PostgreSQL (pgvector HNSW)", "MongoDB (Document Store)", "ChromaDB (Vector Embeddings)"],
     },
     {
       category: "AI & LLM Engineering",
       iconName: "bot",
-      skills: ["Retrieval-Augmented Generation (RAG)", "LangChain", "OpenAI Whisper (Bilingual ASR)", "Sentence Transformers", "Streamlit"],
+      skills: ["Retrieval-Augmented Generation (RAG)", "Semantic Caching (KNN Vector)", "LangChain", "OpenAI Whisper (Bilingual ASR)", "Sentence Transformers", "Ollama (Local LLMs)", "Streamlit"],
     },
     {
       category: "Core Computer Science",
@@ -316,7 +344,7 @@ export const achievements = {
       suffix: "",
       label: "Global Rank in CodeChef Starters 225",
       subtitle: "Ranked 320th out of 35,000+ participating engineers worldwide.",
-      link: "https://www.codechef.com/users/fabvivek",
+      link: "https://www.codechef.com/users/fab_vivek",
     },
     {
       value: 650,
@@ -325,11 +353,11 @@ export const achievements = {
       subtitle: "Rigorous problem solving across LeetCode, CodeChef, and GeeksforGeeks.",
     },
     {
-      value: 1550,
+      value: 1683,
       suffix: "+",
-      label: "LeetCode Contest Rating",
-      subtitle: "Demonstrated algorithm fluency through regular competitive contest participation.",
-      link: "https://leetcode.com/u/fabvivek",
+      label: "DSA Rating on CodeChef",
+      subtitle: "Demonstrated algorithm fluency and speed across regular competitive rated rounds.",
+      link: "https://www.codechef.com/users/fab_vivek",
     },
     {
       value: 8.17,
@@ -385,7 +413,7 @@ export const timeline = {
       year: "Today",
       title: "Building at Scale",
       organization: "Microservices & AI RAG Systems",
-      description: "Architecting event-driven microservices, Redis low-latency layers, and multimodal RAG pipelines. Open to SDE Internships and 2027 Engineering roles.",
+      description: "Architecting event-driven microservices, sub-50ms Redis caches, RediSearch semantic caching, and production RAG pipelines. Open to SDE Internships and 2027 Engineering roles.",
       highlight: "Full-Stack Ready",
     },
     {
@@ -412,7 +440,7 @@ export const contact = {
     { label: "LinkedIn", href: "https://linkedin.com/in/vivek-singh-072242309", icon: "linkedin" },
     { label: "GitHub", href: "https://github.com/FABvivek", icon: "github" },
     { label: "LeetCode", href: "https://leetcode.com/u/fabvivek", icon: "leetcode" },
-    { label: "CodeChef", href: "https://www.codechef.com/users/fabvivek", icon: "codechef" },
+    { label: "CodeChef", href: "https://www.codechef.com/users/fab_vivek", icon: "codechef" },
     { label: "Email", href: "mailto:viveksinghait2027@gmail.com", icon: "email" },
   ] as SocialLink[],
 };

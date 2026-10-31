@@ -141,21 +141,21 @@ export function About() {
 
                   {activeTab === 2 && (
                     <div className="relative w-full h-full flex flex-col items-center justify-center">
-                      <div className="flex items-center gap-2 font-mono text-[10px]">
+                      <div className="flex items-center gap-1.5 sm:gap-2 font-mono text-[10px]">
                         <span className="px-2 py-1 rounded bg-accent/10 border border-accent/30 text-accent">
-                          Whisper ASR
+                          Semantic Cache
                         </span>
                         <span className="text-muted">→</span>
                         <span className="px-2 py-1 rounded bg-white/5 border border-border text-fg">
-                          Chunking
+                          pgvector / Chroma
                         </span>
                         <span className="text-muted">→</span>
                         <span className="px-2 py-1 rounded bg-accent/10 border border-accent/30 text-accent">
-                          ChromaDB
+                          LLM RAG
                         </span>
                       </div>
                       <div className="mt-4 text-center font-mono text-[10px] text-muted">
-                        LangChain 6-Stage Multimodal RAG
+                        Production RAG &amp; RediSearch KNN Semantic Caching
                       </div>
                     </div>
                   )}
